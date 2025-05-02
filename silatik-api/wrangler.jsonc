@@ -2,10 +2,11 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "silatik-api",
   "main": "src/index.ts",
-  "compatibility_date": "2025-05-02"
-  // "compatibility_flags": [
-  //   "nodejs_compat"
-  // ],
+  "compatibility_date": "2025-05-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/postgres",
+  }
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },

@@ -3,13 +3,25 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down",
+    "db:purge": "docker compose down -v",
+    "db:push": "bunx drizzle-kit push",
+    "db:gen": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "db:studio": "bunx drizzle-kit studio",
+    "db:m": "bun db:gen && bun db:migrate",
+    "db:prod-m": "bunx drizzle-kit generate && bunx drizzle-kit migrate",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "better-auth": "^1.2.7",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
     "hono": "^4.7.8",
-    "pg": "^8.15.6"
+    "pg": "^8.15.6",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.14",
