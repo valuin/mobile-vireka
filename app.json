@@ -3,7 +3,6 @@
     "name": "mobile-vireka",
     "slug": "mobile-vireka",
     "version": "1.0.0",
-
     "scheme": "mobile-vireka",
     "web": {
       "bundler": "metro",
@@ -21,21 +20,19 @@
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -43,6 +40,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.valuin.mobilevireka"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f2e19b7d-7ecf-478f-b007-a5f559da610e"
       }
     }
   }
