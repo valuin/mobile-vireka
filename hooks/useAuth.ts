@@ -163,13 +163,34 @@ export const useCurrentUser = () => {
 };
 
 export const useSignOut = () => {
-  const { clearAuth } = useAuthStore();
+  const { clearAuth, accessToken } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       console.log('Signing out');
-      // Clear local state immediately
+
+      // Call API sign-out endpoint if token exists
+      if (accessToken) {
+        const response = await fetch(`${API_BASE_URL}/auth/sign-out`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.log('API sign-out failed, but continuing with local cleanup');
+        }
+      }
+
+      // Clear local state
+      clearAuth();
+      queryClient.clear();
+    },
+    onSettled: () => {
+      // Always clear local state even if API call fails
       clearAuth();
       queryClient.clear();
     },

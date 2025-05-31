@@ -9,7 +9,7 @@ interface TextProps extends RNTextProps {
 
 const Text: React.FC<TextProps> = ({
   className,
-  variant = 'default',
+  variant = '',
   weight = 'regular',
   ...props
 }) => {
