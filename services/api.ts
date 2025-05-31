@@ -50,3 +50,31 @@ export const fetchKelurahanByKecamatan = async (
 
   return data;
 };
+
+export const createAuthenticatedRequest = (token: string) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  };
+};
+
+export const fetchWithAuth = async (endpoint: string, token: string, options: RequestInit = {}) => {
+  console.log(`Making authenticated request to: ${endpoint}`);
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...createAuthenticatedRequest(token).headers,
+      ...(options.headers || {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error(`API Error: ${response.status} - ${errorData}`);
+  }
+
+  return response.json();
+};

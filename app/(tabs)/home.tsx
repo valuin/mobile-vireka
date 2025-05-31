@@ -14,11 +14,10 @@ import { useKelurahanByKecamatan } from '~/hooks/useKelurahanData';
 import { calculateRiskAssessment } from '~/utils/riskCalculator';
 import { WarningIcon } from '~/components/icons/WarningIcon';
 
-// Data for actionable plans
 const actionablePlans = [
   {
     id: 1,
-    title: 'Improve Air Quality',
+    title: 'Worsening Air Quality',
     description: 'Consider using air purifiers and ensure good ventilations',
     priority: 'Urgent',
     priorityColor: 'red-200',
@@ -295,12 +294,6 @@ export default function Home() {
                               </Text>
                             </View>
                           </View>
-
-                          <Button className="h-[25px] self-start rounded border border-teal-500 bg-teal-600 px-4 py-1">
-                            <Text variant="heading" className="text-[11px] text-white">
-                              Learn More
-                            </Text>
-                          </Button>
                         </View>
                       </View>
                     </View>
