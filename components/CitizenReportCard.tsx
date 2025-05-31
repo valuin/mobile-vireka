@@ -65,8 +65,9 @@ const CitizenReportCard: React.FC<CitizenReportCardProps> = ({ report }) => {
                     {report.kelurahan}
                   </Text>
                 </View>
-                <Badge className={`rounded-full px-2 py-1 ${badgeProps.className}`}>
-                  <Text className={`text-xs font-medium capitalize ${badgeProps.textColor}`}>
+                <Badge className={`rounded-full flex-row gap-1 px-2 py-1 ${badgeProps.className}`}>
+                  <Text className={`text-sm font-medium ${badgeProps.textColor}`}>•</Text>
+                  <Text className={`text-sm font-medium capitalize ${badgeProps.textColor}`}>
                     {report.riskLevel}
                   </Text>
                 </Badge>
@@ -77,12 +78,11 @@ const CitizenReportCard: React.FC<CitizenReportCardProps> = ({ report }) => {
               </Text>
             </View>
           </View>
-
           {/* Learn More Button */}
           <TouchableOpacity
             onPress={handleLearnMore}
-            className="mt-2 self-start rounded-lg bg-teal-600 px-3 py-1.5">
-            <Text weight="semibold" className="text-xs text-white">
+            className="mb-2 w-full rounded-lg bg-teal-600 px-3 py-2">
+            <Text weight="semibold" className="text-center text-xs text-white">
               Learn More
             </Text>
           </TouchableOpacity>
