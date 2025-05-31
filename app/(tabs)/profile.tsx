@@ -81,7 +81,7 @@ const ProfileScreen = () => {
 
       <View className="items-center bg-teal-600 pb-6 pt-12">
         <Text weight="bold" variant="heading" className="text-2xl text-white">
-          Profil
+          Profile
         </Text>
       </View>
 
