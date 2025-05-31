@@ -8,16 +8,7 @@ import { KelurahanIssuesList } from './KelurahanIssuesList';
 import { KelurahanEnvironmentalStatus } from './KelurahanEnvironmentalStatus';
 import { KelurahanActionButtons } from './KelurahanActionButtons';
 import { useMapStore } from '~/stores/mapStore';
-
-interface KelurahanRisk {
-  id: string;
-  latitude: number;
-  longitude: number;
-  kelurahan: string;
-  kecamatan: string;
-  riskLevel: 'low' | 'moderate' | 'high' | 'critical';
-  issues: string[];
-}
+import { KelurahanRisk } from '~/types/kelurahan';
 
 interface KelurahanDetailBottomSheetProps {
   selectedKelurahan: KelurahanRisk | null;
@@ -158,6 +149,42 @@ export const KelurahanDetailBottomSheet = forwardRef<
                 latitude={selectedKelurahan.latitude}
                 longitude={selectedKelurahan.longitude}
               />
+
+              {/* Risk Score Section */}
+              <View className="mb-6 rounded-xl bg-gray-50 p-4">
+                <Text className="mb-2 text-lg font-semibold text-gray-900">Risk Assessment</Text>
+                <Text className="mb-2 text-2xl font-bold text-teal-600">
+                  {selectedKelurahan.riskScore}/100
+                </Text>
+                {selectedKelurahan.riskFactors && (
+                  <View className="space-y-2">
+                    <View className="flex-row justify-between">
+                      <Text className="text-sm text-gray-600">Air Quality</Text>
+                      <Text className="text-sm font-medium">
+                        {Math.round(selectedKelurahan.riskFactors.airQuality)}/100
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-sm text-gray-600">Disease Risk</Text>
+                      <Text className="text-sm font-medium">
+                        {Math.round(selectedKelurahan.riskFactors.diseaseRisk)}/100
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-sm text-gray-600">Environmental</Text>
+                      <Text className="text-sm font-medium">
+                        {Math.round(selectedKelurahan.riskFactors.environmentalHealth)}/100
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-sm text-gray-600">Socioeconomic</Text>
+                      <Text className="text-sm font-medium">
+                        {Math.round(selectedKelurahan.riskFactors.socioeconomic)}/100
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
 
               <KelurahanIssuesList issues={selectedKelurahan.issues} />
 

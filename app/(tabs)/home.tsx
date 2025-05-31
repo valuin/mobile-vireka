@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Image,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { router } from 'expo-router';
 import Carousel from 'react-native-reanimated-carousel';
 import { Badge } from '~/components/Badge';
@@ -9,6 +16,8 @@ import MapCard from '~/components/MapCard';
 import CitizenReportCard from '~/components/CitizenReportCard';
 import Text from '~/components/Text';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useKelurahanByKecamatan } from '~/hooks/useKelurahanData';
+import { calculateRiskAssessment } from '~/utils/riskCalculator';
 
 // Data for actionable plans
 const actionablePlans = [
@@ -101,9 +110,30 @@ const citizenReports = [
 ];
 
 export default function Home() {
+  const { data: kelurahanData, isLoading, error } = useKelurahanByKecamatan('kebon jeruk');
+
+  console.log('Kelurahan data loading state:', isLoading);
+  console.log('Kelurahan data:', kelurahanData);
+  console.log('Kelurahan error:', error);
+
   const renderCitizenReport = ({ item }: { item: (typeof citizenReports)[0] }) => (
     <CitizenReportCard report={item} />
   );
+
+  // Transform API data to match existing riskLocations format
+  const transformedRiskLocations =
+    kelurahanData?.map((item, index) => {
+      const riskAssessment = calculateRiskAssessment(item);
+
+      return {
+        id: item.id?.toString() || index.toString(),
+        latitude: item.latitude,
+        longitude: item.longitude,
+        title: item.province,
+        description: `Risk Score: ${riskAssessment.score}/100, AQI: ${item.aqi}`,
+        riskLevel: riskAssessment.level,
+      };
+    }) || riskLocations;
 
   return (
     <SafeAreaView className="flex-1 bg-slate-50">
@@ -150,7 +180,14 @@ export default function Home() {
                       }}
                       activeOpacity={0.9}
                       className="h-[132px] w-full overflow-hidden rounded-lg">
-                      <MapCard riskLocations={riskLocations} />
+                      {isLoading ? (
+                        <View className="h-full w-full items-center justify-center bg-gray-100">
+                          <ActivityIndicator size="small" color="#0f766e" />
+                          <Text className="mt-2 text-xs text-gray-500">Loading map data...</Text>
+                        </View>
+                      ) : (
+                        <MapCard riskLocations={transformedRiskLocations} />
+                      )}
                     </TouchableOpacity>
 
                     {/* Risk indicator buttons - first row */}

@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
@@ -8,57 +16,35 @@ import { Badge } from '~/components/Badge';
 import { Card } from '~/components/Card';
 import { KelurahanDetailBottomSheet } from '~/components/KelurahanDetailBottomSheet';
 import { useMapStore } from '~/stores/mapStore';
-
-interface KelurahanRisk {
-  id: string;
-  latitude: number;
-  longitude: number;
-  kelurahan: string;
-  kecamatan: string;
-  riskLevel: 'low' | 'moderate' | 'high' | 'critical';
-  issues: string[];
-}
-
-const jakartaKelurahanData: KelurahanRisk[] = [
-  {
-    id: '1',
-    latitude: -6.2088,
-    longitude: 106.8456,
-    kelurahan: 'Menteng',
-    kecamatan: 'Menteng',
-    riskLevel: 'high',
-    issues: ['High PM2.5', 'Traffic Pollution'],
-  },
-  {
-    id: '2',
-    latitude: -6.1751,
-    longitude: 106.865,
-    kelurahan: 'Kemayoran',
-    kecamatan: 'Kemayoran',
-    riskLevel: 'moderate',
-    issues: ['Flood Risk', 'Poor Drainage'],
-  },
-  {
-    id: '3',
-    latitude: -6.2297,
-    longitude: 106.8177,
-    kelurahan: 'Kebayoran Baru',
-    kecamatan: 'Kebayoran Baru',
-    riskLevel: 'critical',
-    issues: ['Dengue Outbreak', 'Standing Water'],
-  },
-  {
-    id: '4',
-    latitude: -6.1944,
-    longitude: 106.8229,
-    kelurahan: 'Grogol Petamburan',
-    kecamatan: 'Grogol Petamburan',
-    riskLevel: 'low',
-    issues: ['Good Air Quality'],
-  },
-];
+import { useKelurahanByKecamatan } from '~/hooks/useKelurahanData';
+import { KelurahanData, KelurahanRisk } from '~/types/kelurahan';
+import { calculateRiskAssessment } from '~/utils/riskCalculator';
 
 const PANEL_HEIGHT = 400;
+
+// Transform API data to KelurahanRisk format
+const transformKelurahanData = (apiData: KelurahanData[]): KelurahanRisk[] => {
+  return apiData.map((item, index) => {
+    console.log('Transforming data for:', item.province);
+
+    const riskAssessment = calculateRiskAssessment(item);
+
+    return {
+      id: item.id?.toString() || index.toString(),
+      latitude: item.latitude,
+      longitude: item.longitude,
+      kelurahan: item.province, // API uses 'province' field for kelurahan name
+      kecamatan: item.kecamatan || 'kebon jeruk',
+      riskLevel: riskAssessment.level,
+      riskScore: riskAssessment.score,
+      issues: riskAssessment.primaryConcerns,
+      aqi: item.aqi,
+      pm25: item.pm25,
+      diseases: item.diseases,
+      riskFactors: riskAssessment.factors,
+    };
+  });
+};
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -66,8 +52,53 @@ export default function MapScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { selectedKelurahan, isBottomSheetOpen, openBottomSheet, closeBottomSheet } = useMapStore();
+  const { data: kelurahanApiData, isLoading, error } = useKelurahanByKecamatan('kebon jeruk');
+
+  console.log('API Data:', kelurahanApiData);
+  console.log('Loading:', isLoading);
+  console.log('Error:', error);
+
+  // Transform API data to the format expected by the map
+  const jakartaKelurahanData = useMemo(() => {
+    if (kelurahanApiData && kelurahanApiData.length > 0) {
+      return transformKelurahanData(kelurahanApiData);
+    }
+    return [];
+  }, [kelurahanApiData]);
 
   const snapPoints = useMemo(() => ['85%'], []);
+
+  // Calculate initial region based on markers
+  const initialRegion = useMemo(() => {
+    if (jakartaKelurahanData.length === 0) {
+      return {
+        latitude: -6.1867,
+        longitude: 106.7794,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      };
+    }
+
+    const latitudes = jakartaKelurahanData.map((item) => item.latitude);
+    const longitudes = jakartaKelurahanData.map((item) => item.longitude);
+
+    const minLat = Math.min(...latitudes);
+    const maxLat = Math.max(...latitudes);
+    const minLng = Math.min(...longitudes);
+    const maxLng = Math.max(...longitudes);
+
+    const midLat = (minLat + maxLat) / 2;
+    const midLng = (minLng + maxLng) / 2;
+    const deltaLat = (maxLat - minLat) * 1.5; // Add 50% padding
+    const deltaLng = (maxLng - minLng) * 1.5; // Add 50% padding
+
+    return {
+      latitude: midLat,
+      longitude: midLng,
+      latitudeDelta: Math.max(deltaLat, 0.01), // Minimum zoom level
+      longitudeDelta: Math.max(deltaLng, 0.01), // Minimum zoom level
+    };
+  }, [jakartaKelurahanData]);
 
   // Watch for bottom sheet state changes
   useEffect(() => {
@@ -78,25 +109,31 @@ export default function MapScreen() {
     }
   }, [isBottomSheetOpen, selectedKelurahan]);
 
-  const autoFitMarkers = () => {
+  const autoFitMarkers = useCallback(() => {
     if (mapRef.current && jakartaKelurahanData.length > 0) {
       const coords = jakartaKelurahanData.map(({ latitude, longitude }) => ({
         latitude,
         longitude,
       }));
+
+      console.log('Fitting map to coordinates:', coords);
+
       mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
+        edgePadding: { top: 120, right: 60, bottom: PANEL_HEIGHT + 20, left: 60 },
         animated: true,
       });
     }
-  };
+  }, [jakartaKelurahanData]);
 
+  // Auto-fit markers when data changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      autoFitMarkers();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (jakartaKelurahanData.length > 0) {
+      const timer = setTimeout(() => {
+        autoFitMarkers();
+      }, 500); // Reduced delay for faster response
+      return () => clearTimeout(timer);
+    }
+  }, [jakartaKelurahanData, autoFitMarkers]);
 
   const getRiskBadgeProps = (riskLevel: string) => {
     switch (riskLevel) {
@@ -182,6 +219,7 @@ export default function MapScreen() {
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-900">{item.kelurahan}</Text>
               <Text className="text-sm text-gray-600">Kec. {item.kecamatan}</Text>
+              {item.aqi && <Text className="text-xs text-gray-500">AQI: {item.aqi}</Text>}
             </View>
             <Badge className={`flex-row gap-1 rounded-full px-3 py-1 ${badgeProps.className}`}>
               <Text className={`text-md font-medium ${badgeProps.textColor}`}>•</Text>
@@ -220,13 +258,45 @@ export default function MapScreen() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#0f766e" />
+          <Text className="mt-4 text-gray-600">Loading kelurahan data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1">
+        <View className="flex-1 items-center justify-center px-6">
+          <Ionicons name="warning-outline" size={48} color="#ef4444" />
+          <Text className="mt-4 text-center text-lg font-semibold text-gray-900">
+            Failed to load data
+          </Text>
+          <Text className="mt-2 text-center text-gray-600">
+            {error.message || 'Unable to fetch kelurahan data'}
+          </Text>
+          <TouchableOpacity
+            className="mt-4 rounded-lg bg-teal-600 px-6 py-3"
+            onPress={() => router.back()}>
+            <Text className="font-semibold text-white">Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1">
         {/* Back Button */}
         <TouchableOpacity
           className="absolute left-4 top-14 z-20 rounded-full bg-white p-2 shadow-md"
-          onPress={handleBackPress}>
+          onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={30} color="#0f766e" />
         </TouchableOpacity>
 
@@ -237,15 +307,11 @@ export default function MapScreen() {
           provider={PROVIDER_DEFAULT}
           showsUserLocation
           showsMyLocationButton
-          initialRegion={{
-            latitude: -6.2088,
-            longitude: 106.8456,
-            latitudeDelta: 0.15,
-            longitudeDelta: 0.15,
-          }}
+          region={initialRegion}
           onMapReady={() => {
-            console.log('Full map ready');
-            autoFitMarkers();
+            console.log('Map ready with', jakartaKelurahanData.length, 'markers');
+            // Auto-fit on map ready as well
+            setTimeout(() => autoFitMarkers(), 1000);
           }}>
           {jakartaKelurahanData.map((location) => (
             <Marker
@@ -284,7 +350,7 @@ export default function MapScreen() {
                 className="h-10 flex-1 text-gray-700"
                 placeholder="Search kelurahan..."
                 value={searchQuery}
-                onChangeText={handleSearch}
+                onChangeText={setSearchQuery}
               />
               <Ionicons name="search" size={20} color="#999" />
             </View>
@@ -315,7 +381,7 @@ export default function MapScreen() {
           ref={bottomSheetModalRef}
           selectedKelurahan={selectedKelurahan}
           snapPoints={snapPoints}
-          onDismiss={handleSheetDismiss}
+          onDismiss={closeBottomSheet}
           getRiskIcon={getRiskIcon}
           getRiskBadgeProps={getRiskBadgeProps}
         />
