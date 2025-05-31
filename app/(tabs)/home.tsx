@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import Carousel from 'react-native-reanimated-carousel';
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
 import { Card, CardContent } from '~/components/Card';
 import MapCard from '~/components/MapCard';
+import CitizenReportCard from '~/components/CitizenReportCard';
 import Text from '~/components/Text';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
@@ -66,7 +68,43 @@ const riskLocations = [
   },
 ];
 
+// Sample citizen reports data
+const citizenReports = [
+  {
+    id: '1',
+    citizenName: 'Ahmad Suharto',
+    kelurahan: 'Menteng',
+    summary: 'Heavy flooding on Jl. Sudirman causing traffic disruption. Water level reached 50cm.',
+    riskLevel: 'critical' as const,
+  },
+  {
+    id: '2',
+    citizenName: 'Siti Rahayu',
+    kelurahan: 'Kemayoran',
+    summary: 'Air quality seems poor today with visible smog. Many people wearing masks.',
+    riskLevel: 'high' as const,
+  },
+  {
+    id: '3',
+    citizenName: 'Budi Santoso',
+    kelurahan: 'Kebayoran',
+    summary: 'Dengue cases increasing in the neighborhood. Mosquito breeding sites found.',
+    riskLevel: 'moderate' as const,
+  },
+  {
+    id: '4',
+    citizenName: 'Maya Putri',
+    kelurahan: 'Tanah Abang',
+    summary: 'Good air quality today, clear skies and normal traffic conditions.',
+    riskLevel: 'low' as const,
+  },
+];
+
 export default function Home() {
+  const renderCitizenReport = ({ item }: { item: (typeof citizenReports)[0] }) => (
+    <CitizenReportCard report={item} />
+  );
+
   return (
     <SafeAreaView className="flex-1 bg-slate-50">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -108,7 +146,7 @@ export default function Home() {
                     <TouchableOpacity
                       onPress={() => {
                         console.log('Map card pressed - navigating to map');
-                        router.push('/map');
+                        router.push('/(untab)/map');
                       }}
                       activeOpacity={0.9}
                       className="h-[132px] w-full overflow-hidden rounded-lg">
@@ -152,9 +190,7 @@ export default function Home() {
                       variant="outline"
                       className="h-10 w-full flex-row items-center justify-center gap-2.5 rounded-lg border-2 border-teal-300 bg-white p-2">
                       <Image className="h-[18px] w-[18px]" source={{ uri: '/frame-6.svg' }} />
-                      <Text
-                        weight='extrabold'
-                        className="text-sm font-semibold text-teal-600">
+                      <Text weight="extrabold" className="text-sm font-semibold text-teal-600">
                         Report Activity
                       </Text>
                     </Button>
@@ -164,8 +200,31 @@ export default function Home() {
             </View>
           </View>
 
-          {/* Actionable Plans section */}
+          {/* Citizen Reports section */}
           <View className="px-5 pt-4">
+            <Text variant="subheading" className="mb-4">
+              Citizen Reports
+            </Text>
+
+            <View className="mb-6">
+              <Carousel
+                loop={true}
+                width={300}
+                height={180}
+                snapEnabled={true}
+                pagingEnabled={true}
+                autoPlay={true}
+                autoPlayInterval={3000}
+                data={citizenReports}
+                style={{ width: '100%' }}
+                onSnapToItem={(index) => console.log('current citizen report:', index)}
+                renderItem={renderCitizenReport}
+              />
+            </View>
+          </View>
+
+          {/* Actionable Plans section */}
+          <View className="px-5">
             <Text variant="subheading" className="mb-4">
               Actionable Plans
             </Text>

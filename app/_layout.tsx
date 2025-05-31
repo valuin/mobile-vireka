@@ -4,6 +4,8 @@ import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,10 +31,16 @@ export default function Layout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="index" />
-      <Stack.Screen name="map" options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(untab)/map" options={{ headerShown: false }} />
+          <Stack.Screen name="(untab)/citizen-report/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="(untab)/kelurahan/[id]" options={{ headerShown: false }} />
+        </Stack>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }
