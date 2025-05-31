@@ -1,6 +1,6 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback } from 'react';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Badge } from '~/components/Badge';
 import { KelurahanLocationInfo } from './KelurahanLocationInfo';
@@ -40,7 +40,6 @@ export const KelurahanDetailBottomSheet = forwardRef<
     },
     ref
   ) => {
-    const [activeTab, setActiveTab] = useState<'overview' | 'disease-risk'>('overview');
     const { closeBottomSheet } = useMapStore();
 
     const renderBackdrop = useCallback(
@@ -76,20 +75,8 @@ export const KelurahanDetailBottomSheet = forwardRef<
         backdropComponent={renderBackdrop}
         backgroundStyle={{ backgroundColor: '#ffffff' }}>
         <BottomSheetView className="flex-1 px-6 py-4">
-          {/* Repositioned Header */}
+          {/* Header */}
           <View className="mb-6">
-            {/* Icon */}
-            <View className="mb-4 items-center">
-              <View className="rounded-full bg-teal-100 p-4">
-                <Ionicons
-                  name={getRiskIcon(selectedKelurahan.riskLevel)}
-                  size={40}
-                  color="#0f766e"
-                />
-              </View>
-            </View>
-
-            {/* Name and Badge Row */}
             <View className="mb-2 flex-row items-center justify-between">
               <View className="flex-1">
                 <Text className="text-2xl font-bold text-gray-900">
@@ -113,109 +100,122 @@ export const KelurahanDetailBottomSheet = forwardRef<
             </View>
           </View>
 
-          {/* Tab Navigation */}
-          <View className="mb-4 flex-row rounded-lg bg-gray-100 p-1">
-            <TouchableOpacity
-              className={`flex-1 rounded-md px-4 py-2 ${
-                activeTab === 'overview' ? 'bg-white shadow-sm' : 'bg-transparent'
-              }`}
-              onPress={() => setActiveTab('overview')}>
-              <Text
-                className={`text-center font-medium ${
-                  activeTab === 'overview' ? 'text-gray-900' : 'text-gray-600'
-                }`}>
-                Overview
+          {/* Scrollable Content */}
+          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+            <View className="mb-6 rounded-xl bg-gray-50 p-4">
+              <Text className="mb-2 text-lg font-semibold text-gray-900">Risk Assessment</Text>
+              <Text className="mb-2 text-2xl font-bold text-teal-600">
+                {selectedKelurahan.riskScore}/100
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className={`flex-1 rounded-md px-4 py-2 ${
-                activeTab === 'disease-risk' ? 'bg-white shadow-sm' : 'bg-transparent'
-              }`}
-              onPress={() => setActiveTab('disease-risk')}>
-              <Text
-                className={`text-center font-medium ${
-                  activeTab === 'disease-risk' ? 'text-gray-900' : 'text-gray-600'
-                }`}>
-                Disease Risk Analysis
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Tab Content */}
-          {activeTab === 'overview' ? (
-            <>
-              <KelurahanLocationInfo
-                latitude={selectedKelurahan.latitude}
-                longitude={selectedKelurahan.longitude}
-              />
-
-              {/* Risk Score Section */}
-              <View className="mb-6 rounded-xl bg-gray-50 p-4">
-                <Text className="mb-2 text-lg font-semibold text-gray-900">Risk Assessment</Text>
-                <Text className="mb-2 text-2xl font-bold text-teal-600">
-                  {selectedKelurahan.riskScore}/100
-                </Text>
-                {selectedKelurahan.riskFactors && (
-                  <View className="space-y-2">
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600">Air Quality</Text>
-                      <Text className="text-sm font-medium">
-                        {Math.round(selectedKelurahan.riskFactors.airQuality)}/100
-                      </Text>
-                    </View>
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600">Disease Risk</Text>
-                      <Text className="text-sm font-medium">
-                        {Math.round(selectedKelurahan.riskFactors.diseaseRisk)}/100
-                      </Text>
-                    </View>
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600">Environmental</Text>
-                      <Text className="text-sm font-medium">
-                        {Math.round(selectedKelurahan.riskFactors.environmentalHealth)}/100
-                      </Text>
-                    </View>
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600">Socioeconomic</Text>
-                      <Text className="text-sm font-medium">
-                        {Math.round(selectedKelurahan.riskFactors.socioeconomic)}/100
-                      </Text>
-                    </View>
+              {selectedKelurahan.riskFactors && (
+                <View className="space-y-2">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-gray-600">Air Quality</Text>
+                    <Text className="text-sm font-medium">
+                      {Math.round(selectedKelurahan.riskFactors.airQuality)}/100
+                    </Text>
                   </View>
-                )}
-              </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-gray-600">Disease Risk</Text>
+                    <Text className="text-sm font-medium">
+                      {Math.round(selectedKelurahan.riskFactors.diseaseRisk)}/100
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-gray-600">Environmental</Text>
+                    <Text className="text-sm font-medium">
+                      {Math.round(selectedKelurahan.riskFactors.environmentalHealth)}/100
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-gray-600">Socioeconomic</Text>
+                    <Text className="text-sm font-medium">
+                      {Math.round(selectedKelurahan.riskFactors.socioeconomic)}/100
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
 
-              <KelurahanIssuesList issues={selectedKelurahan.issues} />
+            <KelurahanIssuesList issues={selectedKelurahan.issues} />
+            <KelurahanEnvironmentalStatus riskLevel={selectedKelurahan.riskLevel} />
 
-              <KelurahanEnvironmentalStatus riskLevel={selectedKelurahan.riskLevel} />
-            </>
-          ) : (
-            <View className="flex-1">
+            {/* Disease Risk Analysis */}
+            {selectedKelurahan.diseases?.overview && (
               <View className="mb-6 rounded-xl bg-orange-50 p-4">
                 <Text className="mb-2 text-lg font-semibold text-orange-800">
-                  Disease Risk Assessment
+                  Disease Risk Overview
                 </Text>
                 <Text className="text-sm text-orange-700">
-                  Based on current environmental conditions and historical data, this area shows{' '}
-                  {selectedKelurahan.riskLevel} risk for vector-borne diseases such as dengue fever
-                  and malaria.
+                  {selectedKelurahan.diseases.overview}
                 </Text>
               </View>
+            )}
 
+            {selectedKelurahan.diseases?.diseaseData && (
+              <View className="mb-6">
+                <Text className="mb-3 text-lg font-semibold text-gray-900">Disease Analysis</Text>
+                {selectedKelurahan.diseases.diseaseData.map((disease: any, index: number) => (
+                  <View key={index} className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+                    <View className="mb-2 flex-row items-center justify-between">
+                      <Text className="text-md font-semibold text-gray-900">{disease.name}</Text>
+                      <View
+                        className={`rounded-full px-2 py-1 ${
+                          disease.riskLevel === 'tinggi'
+                            ? 'bg-red-100'
+                            : disease.riskLevel === 'sedang'
+                              ? 'bg-yellow-100'
+                              : 'bg-green-100'
+                        }`}>
+                        <Text
+                          className={`text-xs font-medium ${
+                            disease.riskLevel === 'tinggi'
+                              ? 'text-red-700'
+                              : disease.riskLevel === 'sedang'
+                                ? 'text-yellow-700'
+                                : 'text-green-700'
+                          }`}>
+                          {disease.riskLevel}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text className="mb-2 text-sm text-gray-600">
+                      Risk Percentage: {(disease.percentage * 100).toFixed(1)}%
+                    </Text>
+
+                    <Text className="mb-3 text-sm text-gray-700">
+                      {disease.explanationWhyItsFeasible}
+                    </Text>
+
+                    {disease.prevention && disease.prevention.length > 0 && (
+                      <View>
+                        <Text className="mb-2 text-sm font-semibold text-gray-900">
+                          Prevention:
+                        </Text>
+                        {disease.prevention.map((prevention: string, pIndex: number) => (
+                          <Text key={pIndex} className="mb-1 text-sm text-gray-600">
+                            • {prevention}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {!selectedKelurahan.diseases && (
               <View className="mb-6 rounded-xl bg-blue-50 p-4">
                 <Text className="mb-2 text-lg font-semibold text-blue-800">
-                  Prevention Recommendations
+                  No Disease Data Available
                 </Text>
                 <Text className="text-sm text-blue-700">
-                  Regular monitoring of water sources, elimination of standing water, and community
-                  health education programs are recommended for this area.
+                  Disease risk analysis data is not available for this kelurahan at the moment.
                 </Text>
               </View>
-            </View>
-          )}
-
-          <KelurahanActionButtons onViewOnMap={onViewOnMap} onReportIssue={onReportIssue} />
+            )}
+          </ScrollView>
         </BottomSheetView>
       </BottomSheetModal>
     );

@@ -1,13 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
@@ -47,16 +40,13 @@ const transformKelurahanData = (apiData: KelurahanData[]): KelurahanRisk[] => {
 };
 
 export default function MapScreen() {
+  const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const { selectedKelurahan, isBottomSheetOpen, openBottomSheet, closeBottomSheet } = useMapStore();
   const { data: kelurahanApiData, isLoading, error } = useKelurahanByKecamatan('kebon jeruk');
-
-  console.log('API Data:', kelurahanApiData);
-  console.log('Loading:', isLoading);
-  console.log('Error:', error);
 
   // Transform API data to the format expected by the map
   const jakartaKelurahanData = useMemo(() => {
@@ -260,18 +250,18 @@ export default function MapScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1">
+      <View className="flex-1" style={{ paddingTop: insets.top }}>
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#0f766e" />
           <Text className="mt-4 text-gray-600">Loading kelurahan data...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1">
+      <View className="flex-1" style={{ paddingTop: insets.top }}>
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="warning-outline" size={48} color="#ef4444" />
           <Text className="mt-4 text-center text-lg font-semibold text-gray-900">
@@ -286,16 +276,17 @@ export default function MapScreen() {
             <Text className="font-semibold text-white">Go Back</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1">
+    <View className="flex-1" style={{ paddingTop: insets.top }}>
       <View className="flex-1">
         {/* Back Button */}
         <TouchableOpacity
-          className="absolute left-4 top-14 z-20 rounded-full bg-white p-2 shadow-md"
+          className="absolute left-4 z-20 rounded-full bg-white p-2 shadow-md"
+          style={{ top: insets.top + 14 }}
           onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={30} color="#0f766e" />
         </TouchableOpacity>
@@ -386,6 +377,6 @@ export default function MapScreen() {
           getRiskBadgeProps={getRiskBadgeProps}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Image,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Carousel from 'react-native-reanimated-carousel';
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
@@ -110,6 +104,7 @@ const citizenReports = [
 ];
 
 export default function Home() {
+  const insets = useSafeAreaInsets();
   const { data: kelurahanData, isLoading, error } = useKelurahanByKecamatan('kebon jeruk');
 
   console.log('Kelurahan data loading state:', isLoading);
@@ -136,7 +131,7 @@ export default function Home() {
     }) || riskLocations;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50" style={{ paddingTop: insets.top }}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="min-h-screen w-full bg-slate-100">
           {/* Header section with risk assessment */}
@@ -320,6 +315,6 @@ export default function Home() {
           <View className="h-[20px]" />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

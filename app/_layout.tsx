@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,18 +45,20 @@ export default function Layout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(untab)/map" options={{ headerShown: false }} />
-            <Stack.Screen name="(untab)/citizen-report/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="(untab)/kelurahan/[id]" options={{ headerShown: false }} />
-          </Stack>
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(untab)/map" options={{ headerShown: false }} />
+              <Stack.Screen name="(untab)/citizen-report/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="(untab)/kelurahan/[id]" options={{ headerShown: false }} />
+            </Stack>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
