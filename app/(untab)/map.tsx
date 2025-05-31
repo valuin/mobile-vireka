@@ -250,7 +250,7 @@ export default function MapScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1" style={{ paddingTop: insets.top }}>
+      <View className="flex-1">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#0f766e" />
           <Text className="mt-4 text-gray-600">Loading kelurahan data...</Text>
@@ -261,7 +261,7 @@ export default function MapScreen() {
 
   if (error) {
     return (
-      <View className="flex-1" style={{ paddingTop: insets.top }}>
+      <View className="flex-1">
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="warning-outline" size={48} color="#ef4444" />
           <Text className="mt-4 text-center text-lg font-semibold text-gray-900">
@@ -281,12 +281,12 @@ export default function MapScreen() {
   }
 
   return (
-    <View className="flex-1" style={{ paddingTop: insets.top }}>
+    <View className="flex-1">
       <View className="flex-1">
-        {/* Back Button */}
+        {/* Back Button - adjusted for transparent status bar */}
         <TouchableOpacity
           className="absolute left-4 z-20 rounded-full bg-white p-2 shadow-md"
-          style={{ top: insets.top + 14 }}
+          style={{ top: insets.top + 10 }}
           onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={30} color="#0f766e" />
         </TouchableOpacity>

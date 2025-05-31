@@ -1,4 +1,4 @@
-import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import Text from '~/components/Text';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useKelurahanByKecamatan } from '~/hooks/useKelurahanData';
 import { calculateRiskAssessment } from '~/utils/riskCalculator';
+import { WarningIcon } from '~/components/icons/WarningIcon';
 
 // Data for actionable plans
 const actionablePlans = [
@@ -22,7 +23,7 @@ const actionablePlans = [
     priority: 'Urgent',
     priorityColor: 'red-200',
     dotColor: 'orange-600',
-    image: '/mask-group.png',
+    image: 'https://img.jakpost.net/c/2019/01/16/2019_01_16_63196_1547653415._large.jpg',
   },
   {
     id: 2,
@@ -31,16 +32,16 @@ const actionablePlans = [
     priority: 'Moderate',
     priorityColor: 'orange-200',
     dotColor: 'amber-600',
-    image: '/mask-group-1.png',
+    image: 'https://cdn.antaranews.com/cache/1200x800/2024/04/04/InShot_20240404_045126940.jpg',
   },
 ];
 
 // Data for risk indicators
 const riskIndicators = [
-  { id: 1, title: 'High PM2.5', icon: '/frame-5.svg' },
+  { id: 1, title: 'High PM2.5', icon: 'mountain' },
   { id: 2, title: 'Flood Risk', icon: 'water' },
-  { id: 3, title: 'Dengue Spike', icon: '/frame-3.svg' },
-  { id: 4, title: 'High Humidity', icon: '/frame-4.svg' },
+  { id: 3, title: 'Dengue Spike', icon: 'syringe' },
+  { id: 4, title: 'High Humidity', icon: 'tint' },
 ];
 
 // Sample risk locations for Jakarta
@@ -107,15 +108,10 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const { data: kelurahanData, isLoading, error } = useKelurahanByKecamatan('kebon jeruk');
 
-  console.log('Kelurahan data loading state:', isLoading);
-  console.log('Kelurahan data:', kelurahanData);
-  console.log('Kelurahan error:', error);
-
   const renderCitizenReport = ({ item }: { item: (typeof citizenReports)[0] }) => (
     <CitizenReportCard report={item} />
   );
 
-  // Transform API data to match existing riskLocations format
   const transformedRiskLocations =
     kelurahanData?.map((item, index) => {
       const riskAssessment = calculateRiskAssessment(item);
@@ -131,43 +127,18 @@ export default function Home() {
     }) || riskLocations;
 
   return (
-    <View className="flex-1 bg-slate-50" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-teal-600">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="min-h-screen w-full bg-slate-100">
-          {/* Header section with risk assessment */}
           <View className="relative h-[420px] w-full">
-            {/* Gradient background */}
-            <View className="absolute inset-x-0 top-0 h-[238px] bg-teal-600" />
-            {/* Risk assessment card */}
-            <View className="absolute left-1/2 top-14 -translate-x-1/2">
-              <Card className="rounded-[11.5px] border border-gray-200 bg-white p-3">
-                <CardContent className="p-0">
-                  <View className="flex-col items-center gap-2">
-                    <Image className="h-6 w-6" source={{ uri: '/frame-1.svg' }} />
-                    <View className="flex-col items-center">
-                      <Text variant="caption" className="text-center text-[10px] text-gray-900">
-                        Jakarta Risk Assessment
-                      </Text>
-                      <Text variant="heading" className="text-center text-xl text-orange-500">
-                        Moderate
-                      </Text>
-                      <Text
-                        variant="caption"
-                        className="max-w-[190px] text-center text-[7px] text-gray-900">
-                        Risk elevated due to current air quality and recent rainfall.
-                      </Text>
-                    </View>
-                  </View>
-                </CardContent>
-              </Card>
-            </View>
+            {/* Gradient background - extends to top to cover status bar */}
+            <View className="absolute inset-x-0 top-0 h-[268px] bg-teal-600" />
 
-            {/* Main risk indicators card */}
-            <View className="absolute inset-x-5 top-[88px]">
+            <View className="absolute inset-x-5 top-[118px] z-10">
               <Card className="rounded-xl border border-gray-200 bg-slate-50 p-4">
                 <CardContent className="p-0">
                   <View className="flex-col items-center gap-4">
-                    {/* Map component */}
+                    {/* Map component - no extra padding needed */}
                     <TouchableOpacity
                       onPress={() => {
                         console.log('Map card pressed - navigating to map');
@@ -191,11 +162,7 @@ export default function Home() {
                         <Button
                           key={indicator.id}
                           className="h-10 max-w-[146px] flex-1 flex-row items-center justify-center gap-2.5 rounded-lg border border-orange-300 bg-orange-500 p-2">
-                          {indicator.id === 2 ? (
-                            <FontAwesome5 name="water" size={18} color="white" />
-                          ) : (
-                            <Image className="h-[18px] w-[18px]" source={{ uri: indicator.icon }} />
-                          )}
+                          <FontAwesome5 name={indicator.icon} size={18} color="white" />
                           <Text variant="button" className="text-sm">
                             {indicator.title}
                           </Text>
@@ -209,7 +176,7 @@ export default function Home() {
                         <Button
                           key={indicator.id}
                           className="h-10 max-w-[146px] flex-1 flex-row items-center justify-center gap-2.5 rounded-lg border border-orange-300 bg-orange-500 p-2">
-                          <Image className="h-[18px] w-[18px]" source={{ uri: indicator.icon }} />
+                          <FontAwesome5 name={indicator.icon} size={18} color="white" />
                           <Text className="text-sm font-semibold text-white">
                             {indicator.title}
                           </Text>
@@ -221,11 +188,39 @@ export default function Home() {
                     <Button
                       variant="outline"
                       className="h-10 w-full flex-row items-center justify-center gap-2.5 rounded-lg border-2 border-teal-300 bg-white p-2">
-                      <Image className="h-[18px] w-[18px]" source={{ uri: '/frame-6.svg' }} />
+                          <FontAwesome5 name="flag" size={18} color="#1FA09D" />
                       <Text weight="extrabold" className="text-sm font-semibold text-teal-600">
                         Report Activity
                       </Text>
                     </Button>
+                  </View>
+                </CardContent>
+              </Card>
+            </View>
+
+            {/* Risk assessment card - positioned to overlay the map directly */}
+            <View className="absolute left-1/2 top-[40px] z-30 -translate-x-1/2">
+              <Card className="rounded-2xl border border-gray-200 bg-white p-4 shadow-xl">
+                <CardContent className="p-0">
+                  <View className="flex-col items-center gap-3">
+                    <WarningIcon size={32} color="#f97316" />
+                    <View className="flex-col items-center">
+                      <Text
+                        variant="caption"
+                        className="text-center text-sm font-medium text-gray-900">
+                        West Jakarta Risk Assessment
+                      </Text>
+                      <Text
+                        variant="heading"
+                        className="text-center text-3xl font-bold text-orange-500">
+                        Moderate
+                      </Text>
+                      <Text
+                        variant="caption"
+                        className="max-w-[200px] text-center text-xs text-gray-700">
+                        Risk elevated due to current air quality and recent rainfall.
+                      </Text>
+                    </View>
                   </View>
                 </CardContent>
               </Card>
@@ -258,7 +253,7 @@ export default function Home() {
           {/* Actionable Plans section */}
           <View className="px-5">
             <Text variant="subheading" className="mb-4">
-              Actionable Plans
+              Risk & Overview
             </Text>
 
             {/* Actionable plan cards */}
@@ -286,11 +281,15 @@ export default function Home() {
 
                         <View className="flex-1 gap-3">
                           <View className="gap-1">
-                            <Text weight="bold" className="text-sm text-gray-900">
+                            <Text weight="bold" className="text-lg text-gray-900">
                               {plan.title}
                             </Text>
                             <View className="flex-row items-center gap-1">
-                              <Image className="h-3 w-3" source={{ uri: '/frame.svg' }} />
+                              <Ionicons
+                                name="information-circle-outline"
+                                size={14}
+                                color="#6b7280"
+                              />
                               <Text weight="medium" className="flex-1 text-[10px] text-gray-500">
                                 {plan.description}
                               </Text>
@@ -310,8 +309,6 @@ export default function Home() {
               </View>
             ))}
           </View>
-
-          {/* Bottom spacing for tab navigation */}
           <View className="h-[20px]" />
         </View>
       </ScrollView>

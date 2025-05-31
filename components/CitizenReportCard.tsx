@@ -43,7 +43,7 @@ const CitizenReportCard: React.FC<CitizenReportCardProps> = ({ report }) => {
   };
 
   return (
-    <Card className="mr-3 h-[180px] w-[300px] rounded-xl border border-gray-200 bg-white">
+    <Card className="pr-6 h-[180px] w-[300px] rounded-xl border border-gray-200 bg-white">
       <CardContent className="flex-1 p-4">
         <View className="flex-1 justify-between">
           <View className="flex-row items-start gap-3">
